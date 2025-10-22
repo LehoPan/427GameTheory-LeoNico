@@ -20,6 +20,7 @@ We compute the Traffic/Nash Equilibrium by using the path_cost function which ca
 
 ## Running the program
 Note*** Our program runs correctly on Windows computers, but sometimes the math rounds strangely when using a Macbook.
+Note*** We cannot submit an example file so just ignore mentions of it. 
 
 When creating the `gml` file, please use the format given in our example file. Specifically, we need an `a` and a `b` value for each edge to calculate ax+b.
 
