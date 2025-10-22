@@ -43,7 +43,7 @@ def compute_social_optimum(G, paths, n):
     return np.round(f.value), round(prob.value)
 
 # Plots two graphs, one for the social optimum and another for the equilibrium, each edge displays how many drivers used it.
-def plot_graph(G, paths, social_optimums):
+def plot_graph(G, paths, social_optimums, title):
     # calculates how many drivers use each edge
     driver_flow = {}
     for i in range(len(paths)):
@@ -54,8 +54,14 @@ def plot_graph(G, paths, social_optimums):
                 driver_flow[(paths[i][j], paths[i][j+1])] = 0
             driver_flow[(paths[i][j], paths[i][j+1])] += social_optimums[i]
     pos = nx.spring_layout(G)
+    plt.title(title)
     # Plots the nodes and edges, along with a label on each edge for how many driver utilize it.
     labels = { (u, v): f"DriverFlow={driver_flow[(u,v)]}" for u,v in G.edges }
+    nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=1500)
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+    
+    plt.show()
+
 def compute_nash_equilibrium(G, paths, n, max_iter=1000):
     """Compute discrete (atomic) Nash equilibrium via best-response dynamics."""
     # Random initial assignment of each vehicle to a path
@@ -94,7 +100,6 @@ def compute_nash_equilibrium(G, paths, n, max_iter=1000):
                 changed = True
 
         if not changed:
-            print(f"Converged after {iteration+1} iterations.")
             break
 
     # Count how many vehicles use each path
@@ -135,11 +140,16 @@ def main():
 
     # Compute Nash Equilibrium (discrete atomic)
     nash_flows = compute_nash_equilibrium(G, paths, args.n)
-    print("Nash Equilibrium Path Flows:", nash_flows)
+    print()
+    print("______Nash Equilibrium Path Flows______")
+    print()
+    for i in range(len(nash_flows)):
+        print(f"{nash_flows[i]} taking path {paths[i]}")
 
     # Plots two graphs, one for social and another for equilibrium
     if args.plot:
-        plot_graph(G, paths, driver_path_count)
+        plot_graph(G, paths, driver_path_count, "Social Optimum")
+        plot_graph(G, paths, nash_flows, "Traffic Equilibrium")
 
 if __name__ == "__main__":
     main()
