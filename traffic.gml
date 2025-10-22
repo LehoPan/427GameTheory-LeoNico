@@ -21,31 +21,31 @@ graph [
   edge [
     source 0
     target 1
-    a 2.0
-    b 3.0
+    a 1.0
+    b 0.0
   ]
   edge [
     source 0
     target 2
-    a 1.0
+    a 0.0
     b 5.0
   ]
   edge [
     source 1
     target 2
-    a 2.0
-    b 1.0
+    a 0.0
+    b 0.0
   ]
   edge [
     source 1
     target 3
-    a 3.0
-    b 2.0
+    a 0.0
+    b 5.0
   ]
   edge [
     source 2
     target 3
     a 1.0
-    b 3.0
+    b 0.0
   ]
 ]
