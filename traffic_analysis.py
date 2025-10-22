@@ -45,10 +45,13 @@ def compute_nash_equilibrium(G, paths, n, max_iter=1000):
     # Random initial assignment of each vehicle to a path
     assignments = [random.randint(0, len(paths) - 1) for _ in range(n)]
 
+    # Goes through many iterations to see if there is a more efficient path 
     for iteration in range(max_iter):
+        # If nobody changed this iteration then we reached equilibrium
         changed = False
         # Compute edge flow
         edge_flow = {}
+        # Calculates how many drivers use an edge
         for i in range(n):
             path = paths[assignments[i]]
             for u, v in zip(path[:-1], path[1:]):
@@ -60,23 +63,28 @@ def compute_nash_equilibrium(G, paths, n, max_iter=1000):
             current_cost = path_cost(G, current_path, edge_flow)
             best_path_idx, best_cost = assignments[i], current_cost
 
+            # Checks every alternate path for every driver
             for j, path in enumerate(paths):
                 if j == assignments[i]:
                     continue
-                # simulate moving one vehicle
+                # simulate moving one driver to another path; use a coy so the original doesn't change
                 tmp_flow = edge_flow.copy()
                 for u, v in zip(current_path[:-1], current_path[1:]):
                     tmp_flow[(u, v)] -= 1
                 for u, v in zip(path[:-1], path[1:]):
                     tmp_flow[(u, v)] = tmp_flow.get((u, v), 0) + 1
+                
+                # If the new assigned path is better, then apply the changes
                 c = path_cost(G, path, tmp_flow)
                 if c < best_cost - 1e-6:
                     best_path_idx, best_cost = j, c
 
+            # If something was changed, then restart the loop after apply the changes
             if best_path_idx != assignments[i]:
                 assignments[i] = best_path_idx
                 changed = True
 
+        # If the drivers stay on the same paths, then it exits.
         if not changed:
             print(f"Converged after {iteration+1} iterations.")
             break
