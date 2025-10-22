@@ -13,7 +13,7 @@ All packages are standard numpy installation but `cvxpy ecos` was finicky, so he
 
 We compute the Social Optimum by using the `cvxpy` library to help with the convex matric multiplication, which saves us from directly bruteforcing every driver path combination. The function returns a tuple with a list of how many drivers use each path, as well as the total social optimum.
 
-The plot function looks at the drivers on each path for then social optimum, and calculates how mnay drivers use each edge between two nodes. Then adds the labels to each edge before doing it for the equilibrium as well. Then shows both graphs at once. Uses `networkx` and `matplotlib`.
+The plot function looks at the drivers on each path for then social optimum, and calculates how mnay drivers use each edge between two nodes. Then adds the labels to each edge before doing it for the equilibrium as well. Then shows the social optimum's graph first, and when you close it the equilibrium graph shows. Uses `networkx` and `matplotlib`.
 
 ## Running the program
 Note*** Our program runs correctly on Windows computers, but sometimes the math rounds strangely when using a Macbook.
