@@ -15,8 +15,13 @@ We compute the Social Optimum by using the `cvxpy` library to help with the conv
 
 The plot function looks at the drivers on each path for then social optimum, and calculates how mnay drivers use each edge between two nodes. Then adds the labels to each edge before doing it for the equilibrium as well. Then shows the social optimum's graph first, and when you close it the equilibrium graph shows. Uses `networkx` and `matplotlib`.
 
+We compute the Traffic/Nash Equilibrium by using the path_cost function which calculates the cost of a driver going down a path. This is implemented in a nested for loop that continuously checks to see if the randomly assigned path is better than a newly created path. Once there are no changes, then it ends the for loop and sends a list of which path the drivers took. 
+
+
 ## Running the program
 Note*** Our program runs correctly on Windows computers, but sometimes the math rounds strangely when using a Macbook.
+
+When creating the `gml` file, please use the format given in our example file. Specifically, we need an `a` and a `b` value for each edge to calculate ax+b.
 
 Example Command:
 `python ./traffic_analysis.py traffic.gml 4 0 3 --plot`
