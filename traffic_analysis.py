@@ -4,14 +4,15 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 import cvxpy as cp
+import random
 
-def path_cost(G, path, flow):
+def path_cost(G, path, edge_flow):
     """Compute total cost of a path given edge flows."""
     cost = 0
     for u, v in zip(path[:-1], path[1:]):
         a = G[u][v].get("a", 0)
         b = G[u][v].get("b", 0)
-        x = flow.get((u, v), 0)
+        x = edge_flow.get((u, v), 0)
         cost += a * x + b
     return cost
 
@@ -55,9 +56,50 @@ def plot_graph(G, paths, social_optimums):
     pos = nx.spring_layout(G)
     # Plots the nodes and edges, along with a label on each edge for how many driver utilize it.
     labels = { (u, v): f"DriverFlow={driver_flow[(u,v)]}" for u,v in G.edges }
-    nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=1500)
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
-    plt.show()
+def compute_nash_equilibrium(G, paths, n, max_iter=1000):
+    """Compute discrete (atomic) Nash equilibrium via best-response dynamics."""
+    # Random initial assignment of each vehicle to a path
+    assignments = [random.randint(0, len(paths) - 1) for _ in range(n)]
+
+    for iteration in range(max_iter):
+        changed = False
+        # Compute edge flow
+        edge_flow = {}
+        for i in range(n):
+            path = paths[assignments[i]]
+            for u, v in zip(path[:-1], path[1:]):
+                edge_flow[(u, v)] = edge_flow.get((u, v), 0) + 1
+
+        # Each player checks if switching paths would lower their cost
+        for i in range(n):
+            current_path = paths[assignments[i]]
+            current_cost = path_cost(G, current_path, edge_flow)
+            best_path_idx, best_cost = assignments[i], current_cost
+
+            for j, path in enumerate(paths):
+                if j == assignments[i]:
+                    continue
+                # simulate moving one vehicle
+                tmp_flow = edge_flow.copy()
+                for u, v in zip(current_path[:-1], current_path[1:]):
+                    tmp_flow[(u, v)] -= 1
+                for u, v in zip(path[:-1], path[1:]):
+                    tmp_flow[(u, v)] = tmp_flow.get((u, v), 0) + 1
+                c = path_cost(G, path, tmp_flow)
+                if c < best_cost - 1e-6:
+                    best_path_idx, best_cost = j, c
+
+            if best_path_idx != assignments[i]:
+                assignments[i] = best_path_idx
+                changed = True
+
+        if not changed:
+            print(f"Converged after {iteration+1} iterations.")
+            break
+
+    # Count how many vehicles use each path
+    path_flows = [assignments.count(i) for i in range(len(paths))]
+    return path_flows
 
 def main():
     # Reads arguments from command line
@@ -91,8 +133,9 @@ def main():
         space = 11 - len(str(drive))
         print(f"{drive:<{space}} {str(path):>5}")
 
-    # TODO: Implement Nash Equilibrium (iterative adjustment)
-    # ...
+    # Compute Nash Equilibrium (discrete atomic)
+    nash_flows = compute_nash_equilibrium(G, paths, args.n)
+    print("Nash Equilibrium Path Flows:", nash_flows)
 
     # Plots two graphs, one for social and another for equilibrium
     if args.plot:
